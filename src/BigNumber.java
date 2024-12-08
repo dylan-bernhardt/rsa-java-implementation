@@ -32,11 +32,14 @@ public class BigNumber {
     }
 
     public void display() {
-        System.out.print("\n==============\n");
+        System.out.print("\n==============\n [");
         for (int i = numbers.length - 1; i >= 0; --i) {
-            System.out.print(numbers[i] + "|");
+            System.out.print(numbers[i]);
+            if (i != 0) {
+                System.out.print(", ");
+            }
         }
-        System.out.print("\n==============\n");
+        System.out.print("] \n==============\n");
     }
 
     public BigNumber add(BigNumber numberToAdd) {
@@ -46,16 +49,12 @@ public class BigNumber {
         for (int i = 0; i < SIZE; ++i) {
             int firstOp = this.getBlock(i);
             int secondOp = numberToAdd.getBlock(i);
-
-            if (getBit(firstOp, 30) + getBit(secondOp, 30) == 2) {
-                firstOp -= FIRST_BIT_VALUE;
-                secondOp -= FIRST_BIT_VALUE;
-                result.setBlock(i, firstOp + secondOp + carry);
+            if (firstOp + secondOp + carry < 0) {
+                result.setBlock(i, (firstOp + secondOp + carry) & 0x7FFFFFFF);
                 carry = 1;
-            } else if (getBit(firstOp, 30) + getBit(secondOp, 30) == 0) {
+            } else {
                 result.setBlock(i, firstOp + secondOp + carry);
                 carry = 0;
-            } else if (getBit(firstOp, 30) + getBit(secondOp, 30) == 1) {
             }
         }
         return result;
