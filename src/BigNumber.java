@@ -27,6 +27,26 @@ public class BigNumber {
         return result;
     }
 
+    public int getBlock(int index) {
+        return this.numbers[index];
+    }
+
+    public void setBlock(int index, int value) {
+        this.numbers[index] = value;
+    }
+
+    public int getSize() {
+        return this.numbers.length;
+    }
+
+    public void pop() {
+        int[] newNumbers = new int[this.getSize() - 1];
+        for (int i = 0; i < this.getSize() - 1; ++i) {
+            newNumbers[i] = this.numbers[i];
+        }
+        this.numbers = newNumbers;
+    }
+
     public void display() {
         System.out.print("\n==============\n [");
         for (int i = this.getSize() - 1; i >= 0; --i) {
@@ -51,9 +71,15 @@ public class BigNumber {
 
         BigNumber result = new BigNumber(sizeMax + 1);
         int carry = 0;
-        for (int i = 0; i < sizeMin; ++i) {
-            int firstOp = this.getBlock(i);
-            int secondOp = numberToAdd.getBlock(i);
+        for (int i = 0; i < sizeMax + 1; ++i) {
+            int firstOp = 0;
+            int secondOp = 0;
+            if (i < this.getSize()) {
+                firstOp = this.getBlock(i);
+            }
+            if (i < numberToAdd.getSize()) {
+                secondOp = numberToAdd.getBlock(i);
+            }
             if (firstOp + secondOp + carry < 0) {
                 result.setBlock(i, (firstOp + secondOp + carry) & 0x7FFFFFFF);
                 carry = 1;
@@ -62,28 +88,27 @@ public class BigNumber {
                 carry = 0;
             }
         }
-
-        for (int i = sizeMin; i < sizeMax; ++i) {
-            if (i < this.getSize()) {
-                result.setBlock(i, this.getBlock(i));
-            } else if (i < numberToAdd.getSize()) {
-                result.setBlock(i, numberToAdd.getBlock(i));
-            }
+        if (result.getBlock(result.getSize() - 1) == 0) {
+            result.pop();
         }
-
         return result;
     }
 
-    public int getBlock(int index) {
-        return this.numbers[index];
-    }
-
-    public void setBlock(int index, int value) {
-        this.numbers[index] = value;
-    }
-
-    public int getSize() {
-        return this.numbers.length;
+    public BigNumber multiply(BigNumber nb) {
+        var result = new BigNumber(this.getSize() + nb.getSize());
+        for (int i = 0; i < this.getSize(); ++i) {
+            for (int j = 0; j < nb.getSize(); ++j) {
+                int[] tab = new int[this.getSize() + nb.getSize()];
+                long multResult = (long) this.getBlock(i) * (long) nb.getBlock(j);
+                int lsbs = (int) (multResult & 0x7FFFFFFF);
+                int msbs = (int) ((multResult >> 31) & 0x7FFFFFFF);
+                tab[i + j] = lsbs;
+                tab[i + j + 1] = msbs;
+                var productBigNumber = new BigNumber(tab);
+                result = result.add(productBigNumber);
+            }
+        }
+        return result;
     }
 
 }
