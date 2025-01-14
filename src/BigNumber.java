@@ -48,7 +48,7 @@ public class BigNumber {
     }
 
     public void display() {
-        System.out.print("\n==============\n [");
+        System.out.print("\n==============\n[");
         for (int i = this.getSize() - 1; i >= 0; --i) {
             System.out.print(numbers[i]);
             if (i != 0) {
@@ -59,13 +59,10 @@ public class BigNumber {
     }
 
     public BigNumber add(BigNumber numberToAdd) {
-        int sizeMin;
         int sizeMax;
         if (this.getSize() > numberToAdd.getSize()) {
-            sizeMin = numberToAdd.getSize();
             sizeMax = this.getSize();
         } else {
-            sizeMin = this.getSize();
             sizeMax = numberToAdd.getSize();
         }
 
@@ -111,4 +108,78 @@ public class BigNumber {
         return result;
     }
 
+    public boolean isLessThan(BigNumber nb) {
+        if (this.getSize() > nb.getSize()) {
+            return false;
+        } else if (this.getSize() < nb.getSize()) {
+            return true;
+        } else {
+            for (int i = nb.getSize() - 1; i >= 0; --i) {
+                if (this.getBlock(i) < nb.getBlock(i)) {
+                    return true;
+                } else if (this.getBlock(i) > nb.getBlock(i)) {
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
+    public BigNumber substract(BigNumber nb) {
+        if (this.isLessThan(nb)) {
+            return new BigNumber(0);
+        }
+
+        int sizeMax;
+        if (this.getSize() > nb.getSize()) {
+            sizeMax = this.getSize();
+        } else {
+            sizeMax = nb.getSize();
+        }
+
+        BigNumber result = new BigNumber(sizeMax);
+        int carry = 0;
+        for (int i = 0; i < sizeMax; ++i) {
+            int firstOp = 0;
+            int secondOp = 0;
+            if (i < this.getSize()) {
+                firstOp = this.getBlock(i);
+            }
+            if (i < nb.getSize()) {
+                secondOp = nb.getBlock(i);
+            }
+            if (firstOp - secondOp - carry < 0) {
+                result.setBlock(i, (firstOp - secondOp - carry) & 0x7FFFFFFF);
+                carry = 1;
+            } else {
+                result.setBlock(i, firstOp - secondOp - carry);
+                carry = 0;
+            }
+        }
+        return result;
+    }
+
+    public BigNumber addModular(BigNumber nbToAdd, BigNumber mod) {
+        var sum = this.add(nbToAdd);
+        if (sum.isLessThan(mod)) {
+            return sum;
+        }
+        return sum.substract(mod);
+    }
+
+    public BigNumber multiplyMM(BigNumber nbToAdd, BigNumber mod, BigNumber r, BigNumber rp, int blocksAtRight) {
+        System.err.println("block : " + blocksAtRight);
+        BigNumber s = this.multiply(nbToAdd);
+        BigNumber t = s.multiply(rp);
+        for (int i = blocksAtRight; i < t.getSize(); ++i) {
+            t.setBlock(i, 0);
+        }
+        BigNumber m = t.multiply(mod).add(s);
+
+        BigNumber u = new BigNumber(m.getSize() - blocksAtRight);
+        for (int i = blocksAtRight; i < t.getSize(); ++i) {
+            u.setBlock(i - blocksAtRight, m.getBlock(i));
+        }
+        return u;
+    }
 }
