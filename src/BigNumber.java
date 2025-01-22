@@ -47,6 +47,13 @@ public class BigNumber {
         this.numbers = newNumbers;
     }
 
+    public BigNumber strip() {
+        while (this.getBlock(getSize() - 1) == 0) {
+            this.pop();
+        }
+        return this;
+    }
+
     public void display() {
         System.out.print("\n==============\n[");
         for (int i = this.getSize() - 1; i >= 0; --i) {
@@ -168,7 +175,6 @@ public class BigNumber {
     }
 
     public BigNumber multiplyMM(BigNumber nbToAdd, BigNumber mod, BigNumber r, BigNumber rp, int blocksAtRight) {
-        System.err.println("block : " + blocksAtRight);
         BigNumber s = this.multiply(nbToAdd);
         BigNumber t = s.multiply(rp);
         for (int i = blocksAtRight; i < t.getSize(); ++i) {
@@ -180,6 +186,10 @@ public class BigNumber {
         for (int i = blocksAtRight; i < t.getSize(); ++i) {
             u.setBlock(i - blocksAtRight, m.getBlock(i));
         }
-        return u;
+
+        if (mod.isLessThan(u)) {
+            return u.substract(mod).strip();
+        }
+        return u.strip();
     }
 }
