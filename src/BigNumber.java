@@ -174,6 +174,9 @@ public class BigNumber {
         return sum.substract(mod);
     }
 
+    /*
+     * A X B = A . B . r-1 mod n
+     */
     public BigNumber multiplyMM(BigNumber nbToAdd, BigNumber mod, BigNumber r, BigNumber rp, int blocksAtRight) {
         BigNumber s = this.multiply(nbToAdd);
         BigNumber t = s.multiply(rp);
@@ -181,15 +184,26 @@ public class BigNumber {
             t.setBlock(i, 0);
         }
         BigNumber m = t.multiply(mod).add(s);
-
         BigNumber u = new BigNumber(m.getSize() - blocksAtRight);
         for (int i = blocksAtRight; i < t.getSize(); ++i) {
             u.setBlock(i - blocksAtRight, m.getBlock(i));
         }
 
-        if (mod.isLessThan(u)) {
+        if (mod.isLessThan(u.strip())) {
             return u.substract(mod).strip();
         }
         return u.strip();
+    }
+
+    public BigNumber squareAndMultiply(int[] power, BigNumber mod, BigNumber r, BigNumber rp, int blocksAtRight) {
+        int n = power.length;
+        BigNumber result = r.substract(mod);
+        for (int i = n - 1; i >= 0; --i) {
+            result = result.multiplyMM(result, mod, r, rp, blocksAtRight);
+            if (power[i] == 1) {
+                result = result.multiplyMM(this, mod, r, rp, blocksAtRight);
+            }
+        }
+        return result.strip();
     }
 }
