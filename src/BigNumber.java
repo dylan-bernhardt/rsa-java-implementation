@@ -19,14 +19,6 @@ public class BigNumber {
         return (number >> pos) & 1;
     }
 
-    public static int getFirstDigit(int number) {
-        int result = number;
-        for (int i = 0; i < 9; ++i) {
-            result /= 10;
-        }
-        return result;
-    }
-
     public int getBlock(int index) {
         return this.numbers[index];
     }
@@ -177,9 +169,10 @@ public class BigNumber {
     /*
      * A X B = A . B . r-1 mod n
      */
-    public BigNumber multiplyMM(BigNumber nbToAdd, BigNumber mod, BigNumber r, BigNumber rp, int blocksAtRight) {
+    public BigNumber multiplyMM(BigNumber nbToAdd, BigNumber mod, BigNumber r, BigNumber rp) {
         BigNumber s = this.multiply(nbToAdd);
         BigNumber t = s.multiply(rp);
+        int blocksAtRight = r.strip().getSize() - 1;
         for (int i = blocksAtRight; i < t.getSize(); ++i) {
             t.setBlock(i, 0);
         }
@@ -195,13 +188,13 @@ public class BigNumber {
         return u.strip();
     }
 
-    public BigNumber squareAndMultiply(int[] power, BigNumber mod, BigNumber r, BigNumber rp, int blocksAtRight) {
+    public BigNumber squareAndMultiply(int[] power, BigNumber mod, BigNumber r, BigNumber rp) {
         int n = power.length;
         BigNumber result = r.substract(mod);
         for (int i = n - 1; i >= 0; --i) {
-            result = result.multiplyMM(result, mod, r, rp, blocksAtRight);
+            result = result.multiplyMM(result, mod, r, rp);
             if (power[i] == 1) {
-                result = result.multiplyMM(this, mod, r, rp, blocksAtRight);
+                result = result.multiplyMM(this, mod, r, rp);
             }
         }
         return result.strip();
