@@ -104,7 +104,7 @@ public class BigNumber {
                 result = result.add(productBigNumber);
             }
         }
-        return result;
+        return result.strip();
     }
 
     public boolean isLessThan(BigNumber nb) {
@@ -176,16 +176,17 @@ public class BigNumber {
         for (int i = blocksAtRight; i < t.getSize(); ++i) {
             t.setBlock(i, 0);
         }
+        t.strip();
         BigNumber m = t.multiply(mod).add(s);
         BigNumber u = new BigNumber(m.getSize() - blocksAtRight);
-        for (int i = blocksAtRight; i < t.getSize(); ++i) {
+        for (int i = blocksAtRight; i < m.getSize(); ++i) {
             u.setBlock(i - blocksAtRight, m.getBlock(i));
         }
-
         if (mod.isLessThan(u.strip())) {
             return u.substract(mod).strip();
         }
         return u.strip();
+
     }
 
     public BigNumber squareAndMultiply(int[] power, BigNumber mod, BigNumber r, BigNumber rp) {
