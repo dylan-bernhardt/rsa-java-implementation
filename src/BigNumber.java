@@ -186,18 +186,20 @@ public class BigNumber {
             return u.substract(mod).strip();
         }
         return u.strip();
-
     }
 
     public BigNumber squareAndMultiply(int[] power, BigNumber mod, BigNumber r, BigNumber rp) {
         int n = power.length;
         BigNumber result = r.substract(mod);
+
         for (int i = n - 1; i >= 0; --i) {
+            System.out.print(n - i + "/" + n + "\r");
             result = result.multiplyMM(result, mod, r, rp);
             if (power[i] == 1) {
                 result = result.multiplyMM(this, mod, r, rp);
             }
         }
+        System.out.println("Done !        ");
         return result.strip();
     }
 }
